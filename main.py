@@ -94,7 +94,6 @@ async def show_positions(message):
     await bot.send_message(message.chat.id,
                            msg if msg else "There are no open positions")
 
-
 @bot.message_handler(commands=["GETLOG"])
 async def get_log(message):
     """Sends the file with application log to the chat"""
@@ -129,8 +128,11 @@ class Position:
             self.size = 0
 
     def __str__(self):
-        return f"{self.symbol}: Pnl = {self.pnl_percent}, Market price = {self.markPrice}, size = {self.size}," \
-               f"Stop loss triger = {self.stop_loss_trigger}%, Limit order placed: {self.limit_opened}"
+        return f"{self.symbol}: " \
+               f"Pnl = {self.pnl_percent}, " \
+               f"Market price = {self.markPrice}, size = {self.size}, " \
+               f"Stop loss triger = {self.stop_loss_trigger}%, " \
+               f"Limit order placed: {self.limit_opened}."
 
     def update_position(self, position: dict):
         """Uupdates the instance according to the last API response"""
@@ -146,7 +148,8 @@ class Position:
             logger.info(self.symbol + ": position closed.")
 
     async def stopout(self):
-        """ Cancel the limit order if any and close the position by market price"""
+        """ Cancel the limit order if any and close the position
+        by market price"""
         logger.info(f"{self.symbol}: STOPOUT!")
         if self.limit_opened:
             response1 = await bybit.cancel_order(self.limit_order_id,
@@ -159,7 +162,8 @@ class Position:
 
     async def follow(self):
         """
-        Check the position info and update the values until the stop loss is triggered
+        Check the position info and update the values until the stop loss
+        is triggered.
         :return: None
         """
         while self.opened:
@@ -205,7 +209,8 @@ class Position:
 
 
 class Bybit:
-    """Sends requests to ByBit API for opening and closing positions, checks them"""
+    """Sends requests to ByBit API for opening and closing positions,
+    checks them"""
 
     def __init__(self, api_key, secret_key, recv_window):
         self.api_key = api_key
@@ -281,7 +286,9 @@ class Bybit:
 
     async def check_position(self, channel_id: str, symbol: str):
         """Checks if there is a position opened for a particular symbol.
-        If there isn't, places the Buy order and starts following the position"""
+        If there isn't, places the Buy order
+        and starts following the position"""
+        
         response = await self.get_position(symbol)
         if response['retCode'] != 0:
             logger.error(response)
@@ -297,13 +304,16 @@ class Bybit:
             else:
                 if symbol in self.opened_positions:
                     logger.info(symbol + ": already being followed by bot")
-                    await bot.send_message(channel_id,
-                                           symbol + ": already being followed by bot")
+                    await bot.send_message(
+                        channel_id,
+                        symbol + ": already being followed by bot")
                 else:
                     logger.info(symbol + ": already opened not by bot")
-                    await bot.send_message(channel_id,
-                                           symbol + ": already opened not by Bybit positions follower bot")
-                return symbol + ": already opened not by Bybit positions follower bot"
+                    await bot.send_message(
+                        channel_id,
+                        symbol + ": already opened not by the bot"
+                    )
+                return symbol + ": already opened not by the bot"
 
     async def follow_position(self, channel_id, symbol):
         """Creates the Position object and initiates its following process"""
