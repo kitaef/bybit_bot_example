@@ -1,0 +1,4 @@
+aiohttp==3.10.0
+pytelegrambotapi==4.21.0
+loguru==0.7.2
+sqlalchemy==2.0.31
